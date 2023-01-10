@@ -224,11 +224,11 @@ export function createPaginationMachine<
         noCurrentPage: ({ currentPage }) => !currentPage,
         queryIsStarted: context => !!context?.config?.queryTimer,
         queryTakesTooLong: context => {
-          throw '//TODO : Implement by fsf';
+          throw '//TODO : Implement by @bemedev/fsf, use currentTile and notif time';
         },
       },
       actions: {
-        //TODO : Implement by fsf
+        //TODO : Implement all, sometimes use @bemedev/fsf
       },
       delays: {
         DISPLAY_TIME: display,
