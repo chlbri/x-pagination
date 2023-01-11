@@ -2,9 +2,8 @@ import {
   DEFAULT_DISPLAY_TIME,
   DEFAULT_ERROR_TIME,
   DEFAULT_NOTIFICATION_TIME,
-  TEST_ID,
 } from './constants';
-import { ServiceArgs, TimerArgs } from './types';
+import { TimerArgs } from './types';
 
 export function assignTimers(args?: TimerArgs) {
   const displayTime = args?.displayTime || DEFAULT_DISPLAY_TIME;
@@ -43,16 +42,4 @@ export function assignObject<T extends object, K extends keyof T>(
     }; //?
   }
   return obj;
-}
-
-export function assignServices<Config = any>(
-  services?: ServiceArgs<Config>,
-) {
-  const emptyGetUser = async () => ({ id: TEST_ID });
-  const emptyConfig = async () => ({} as Config);
-
-  return {
-    getUser: services?.getUser || emptyGetUser,
-    config: services?.config || emptyConfig,
-  };
 }
