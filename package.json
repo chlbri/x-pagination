@@ -3,7 +3,7 @@
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "module": "lib/index.mjs",
-  "name": "//TODO: Add a name",
+  "name": "@bemedev/x-pagination",
   "repository": {
     "type": "git",
     "url": "//TODO: Add the URL"
@@ -47,6 +47,7 @@
     "eslint": "^8.31.0",
     "husky": "^8.0.3",
     "immer": "^9.0.17",
+    "nanoid": "^4.0.0",
     "onchange": "^7.1.0",
     "pnpm": "^7.23.0",
     "prettier": "^2.8.2",

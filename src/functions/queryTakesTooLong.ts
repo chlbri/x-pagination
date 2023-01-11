@@ -7,9 +7,7 @@ export const logic = createLogic(
     initial: 'definition',
     schema: {
       data: true,
-      events: {} as Pick<Context, 'config'> & {
-        notification: number;
-      },
+      events: {} as Pick<Context, 'timers'>,
       context: {} as { now?: number; duration?: number },
     },
     states: {
@@ -45,10 +43,10 @@ export const logic = createLogic(
   },
   {
     guards: {
-      timerIsUndefined: (_, event) => !event.config?.queryTimer,
-      durationIsNegative: (context, { notification }) => {
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-        return context.duration! > notification;
+      timerIsUndefined: (_, event) => !event.timers?.queryTimer,
+      durationIsNegative: (context, { timers }) => {
+        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
+        return context.duration! > timers?.notificationTime!;
       },
     },
     actions: {
@@ -57,7 +55,7 @@ export const logic = createLogic(
       },
       setDuration: (context, event) => {
         // eslint-disable-next-line @typescript-eslint/no-non-null-assertion, @typescript-eslint/no-non-null-asserted-optional-chain
-        context.duration = context.now! - event.config?.queryTimer!;
+        context.duration = context.now! - event.timers?.queryTimer!;
       },
     },
     datas: {
@@ -67,4 +65,4 @@ export const logic = createLogic(
   },
 );
 
-export const _queryTakesTooLong = interpret(logic);
+export const queryTakesTooLong = interpret(logic);

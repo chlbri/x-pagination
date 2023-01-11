@@ -4,13 +4,14 @@ import {
   DEFAULT_NOTIFICATION_TIME,
   TEST_ID,
 } from './constants';
-import { Item, Items, Page, ServiceArgs, TimerArgs } from './types';
+import { ServiceArgs, TimerArgs } from './types';
 
 export function assignTimers(args?: TimerArgs) {
-  const display = args?.display || DEFAULT_DISPLAY_TIME;
-  const error = args?.error || DEFAULT_ERROR_TIME;
-  const notification = args?.notification || DEFAULT_NOTIFICATION_TIME;
-  return { display, error, notification };
+  const displayTime = args?.displayTime || DEFAULT_DISPLAY_TIME;
+  const errorTime = args?.errorTime || DEFAULT_ERROR_TIME;
+  const notificationTime =
+    args?.notificationTime || DEFAULT_NOTIFICATION_TIME;
+  return { displayTime, errorTime, notificationTime };
 }
 
 export function assignObject<T extends object, K extends keyof T>(
@@ -42,23 +43,6 @@ export function assignObject<T extends object, K extends keyof T>(
     }; //?
   }
   return obj;
-}
-
-export function chunk<T extends Item = Item>(arr: Items<T>, size: number) {
-  const raw = Object.entries(arr) as [`${number}`, T][];
-  const pages: Page<Item> = {};
-
-  raw.forEach(([pos, item]) => {
-    const _pos = Number(pos);
-    const key = Math.floor(_pos / size);
-    let page = pages[`${key}`];
-    if (!page) {
-      page = [];
-    }
-    page.push(item);
-  });
-
-  return pages;
 }
 
 export function assignServices<Config = any>(

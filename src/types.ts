@@ -1,26 +1,37 @@
 export type SN = `${number}`;
 
 export type Item = {
+  id: string;
+} & Record<string, any>;
+
+export type ItemWithPosition = {
   __position__: number;
+  item: Item;
 };
 
-export type Items<T extends Item = Item> = Record<SN, T>;
+export type Items = Record<SN, Item>;
 
-export type Page<T extends Item = Item> = Record<SN, T[]>;
+type ArrayRecord<T> = Record<SN, T[]>;
 
-export type Context<T extends Item = Item> = {
+export type Pages = ArrayRecord<Item>;
+export type Ids = ArrayRecord<string>;
+
+export type Context = {
   user?: {
     id?: string;
   };
-  config?: {
+  timers?: {
     queryTimer?: number;
+    errorTime?: number;
+    notificationTime?: number;
+    displayTime?: number;
   };
-  items?: Items<T>;
-  pages?: Page<T>;
+  items?: Items;
+  pages?: Pages;
   ids?: Record<string, string[]>;
   pageSize?: number;
   currentPage?: number;
-  currentItems?: T[];
+  currentItems?: Item[];
   total?: number;
   totalPages?: number;
   allTotal?: number;
@@ -40,23 +51,23 @@ export type SendEvents =
         | 'SEND/LAST_PAGE';
     };
 
-export type Events<T extends Item = Item> =
+export type Events =
   | {
-      type: 'NAME';
-      data: { name: string };
+      type: 'CONFIG';
+      data: Pick<Context, 'name'> & TimerArgs;
     }
   | SendEvents
   | {
       type: 'RECEIVE';
       data: {
-        items?: Items<T>;
+        items?: ItemWithPosition[];
         allTotal?: number;
         currentPage?: number;
       };
     }
   | {
-      type: 'SEND/SET_PAGE_SIZE';
-      data: { size: number };
+      type: 'SET_PAGE_SIZE';
+      data: { pageSize: number };
     };
 
 export type GetUserService = (
@@ -81,8 +92,7 @@ export type ServiceArgs<Config = any> = {
   config?: ConfigService<Config>;
 };
 
-export type TimerArgs = {
-  display?: number;
-  error?: number;
-  notification?: number;
-};
+export type TimerArgs = Omit<
+  Exclude<Context['timers'], undefined>,
+  'queryTimer'
+>;

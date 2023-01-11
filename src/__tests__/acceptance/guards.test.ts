@@ -1,11 +1,10 @@
 import { interpret } from '@bemedev/x-test';
 import { describe, test } from 'vitest';
-import { createPaginationMachine } from '~machine';
+import { PaginationMachine } from '../../machine';
 
 const notification = 200;
-const machine = createPaginationMachine({}, { notification });
 
-const { guard } = interpret(machine);
+const { guard } = interpret(PaginationMachine);
 
 describe.concurrent('#1: itemsNotEmpty', () => {
   const [acceptance, _test] = guard('itemsNotEmpty');
@@ -66,7 +65,7 @@ describe.concurrent('#3: queryIsStarted', () => {
   test.concurrent('#2: Timer is started => true', () => {
     _test({
       expected: true,
-      context: { config: { queryTimer: Date.now() } },
+      context: { timers: { queryTimer: Date.now() } },
     });
   });
 });
@@ -77,14 +76,15 @@ describe.concurrent('#4: queryTakesTooLong', () => {
   test.concurrent('#0:Function is defined', acceptance);
 
   test.concurrent('#1: Timer is undefined => false', () => {
-    _test({ expected: false });
+    _test({ expected: false, context: {} });
   });
 
   test.concurrent('#2: It takes too long => false', () => {
     const queryTimer = Date.now() - notification * 5;
+    const notificationTime = notification;
     _test({
       expected: true,
-      context: { config: { queryTimer } },
+      context: { timers: { queryTimer, notificationTime } },
     });
   });
 
@@ -92,7 +92,7 @@ describe.concurrent('#4: queryTakesTooLong', () => {
     const queryTimer = Date.now() - notification / 2;
     _test({
       expected: false,
-      context: { config: { queryTimer } },
+      context: { timers: { queryTimer } },
     });
   });
 });
