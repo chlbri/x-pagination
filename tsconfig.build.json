@@ -1,7 +1,7 @@
 {
   // see https://www.typescriptlang.org/tsconfig to better understand tsconfigs
   "include": ["src/**/*"],
-  "exclude": ["src/**/*.test.ts", "src/fixtures"],
+  "exclude": ["src/**/*.test.ts", "src/fixtures", "src/__tests__"],
   "compilerOptions": {
     "lib": ["dom", "esnext"],
     "importHelpers": true,
@@ -36,6 +36,10 @@
     "noEmit": true,
     "types": ["vitest/globals"],
     "declarationMap": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "baseUrl": ".",
+    "paths": {
+      "~machine": ["src/machine.ts"]
+    }
   }
 }

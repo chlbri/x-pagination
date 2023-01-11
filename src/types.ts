@@ -1,10 +1,14 @@
 export type SN = `${number}`;
 
-export type Items<T = any> = Record<SN, T>;
+export type Item = {
+  __position__: number;
+};
 
-export type Page<T = any> = Record<SN, T[]>;
+export type Items<T extends Item = Item> = Record<SN, T>;
 
-export type Context<T extends object = object> = {
+export type Page<T extends Item = Item> = Record<SN, T[]>;
+
+export type Context<T extends Item = Item> = {
   user?: {
     id?: string;
   };
@@ -13,7 +17,8 @@ export type Context<T extends object = object> = {
   };
   items?: Items<T>;
   pages?: Page<T>;
-  ids?: Page<string>;
+  ids?: Record<string, string[]>;
+  pageSize?: number;
   currentPage?: number;
   currentItems?: T[];
   total?: number;
@@ -35,7 +40,7 @@ export type SendEvents =
         | 'SEND/LAST_PAGE';
     };
 
-export type Events<T = any> =
+export type Events<T extends Item = Item> =
   | {
       type: 'NAME';
       data: { name: string };
@@ -48,6 +53,10 @@ export type Events<T = any> =
         allTotal?: number;
         currentPage?: number;
       };
+    }
+  | {
+      type: 'SEND/SET_PAGE_SIZE';
+      data: { size: number };
     };
 
 export type GetUserService = (

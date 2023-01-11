@@ -19,7 +19,7 @@
 "getUser": "done.invoke.getUser";
         };
         missingImplementations: {
-          actions: "assignAllTotal" | "assignItems" | "closeQueryTimer" | "constructIds" | "constructPages" | "escalateConfigError" | "escalateTimeError" | "escalateUserError" | "send/first" | "send/goto" | "send/last" | "send/next" | "send/notifyTakesTooLong" | "send/previous" | "sendCurrentItems" | "setConfig" | "setCurrentItems" | "setCurrentPage" | "setDefaultPage" | "setEmptyPages" | "setName" | "setTotal" | "setTotalPages" | "setUser" | "startQueryTimer";
+          actions: "constructIds" | "constructPages" | "send/first" | "send/goto" | "send/last" | "send/next" | "send/previous" | "sendCurrentItems" | "setCurrentItems" | "setDefaultPage" | "setPageSize" | "setTotal" | "setTotalPages";
           delays: never;
           guards: never;
           services: never;
@@ -44,8 +44,10 @@
 "setCurrentItems": "";
 "setCurrentPage": "RECEIVE";
 "setDefaultPage": "";
+"setDefaultPageSize": "" | "NAME" | "SEND/FIRST_PAGE" | "SEND/GOTO" | "SEND/LAST_PAGE" | "SEND/NEXT" | "SEND/PREVIOUS";
 "setEmptyPages": "";
 "setName": "NAME";
+"setPageSize": "SEND/SET_PAGE_SIZE";
 "setTotal": "";
 "setTotalPages": "";
 "setUser": "done.invoke.getUser";

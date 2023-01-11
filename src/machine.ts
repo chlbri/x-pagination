@@ -1,8 +1,13 @@
-import { createMachine } from 'xstate';
-import { assignServices, assignTimers } from './helpers';
+import { assign } from '@xstate/immer';
+import { createMachine, sendParent } from 'xstate';
+import { escalate } from 'xstate/lib/actions';
+import { DEFAULT_PAGE_SIZE } from './constants';
+import { itemsNotEmpty, _queryTakesTooLong } from './functions';
+import { assignObject, assignServices, assignTimers } from './helpers';
 import {
   Context,
   Events,
+  Item,
   ServiceArgs,
   Services,
   TimerArgs,
@@ -18,7 +23,7 @@ import {
  * @returns A machine
  */
 export function createPaginationMachine<
-  T extends object = object,
+  T extends Item = Item,
   Config = any,
 >(services?: ServiceArgs<Config>, timers?: TimerArgs) {
   const { display, error, notification } = assignTimers(timers);
@@ -75,10 +80,12 @@ export function createPaginationMachine<
           },
         },
         work: {
+          entry: 'setDefaultPageSize',
           initial: 'idle',
           states: {
             idle: {
               description: 'Commands center',
+              entry: 'setDefaultPageSize',
               after: {
                 QUERY_ERROR: {
                   target: '#pagination.error',
@@ -195,6 +202,11 @@ export function createPaginationMachine<
               },
             },
           },
+          on: {
+            'SEND/SET_PAGE_SIZE': {
+              actions: 'setPageSize',
+            },
+          },
         },
         error: {
           type: 'final',
@@ -211,24 +223,72 @@ export function createPaginationMachine<
     },
     {
       guards: {
-        itemsNotEmpty: context => {
-          // for (const key in context.items) {
-          //   if (Object.prototype.hasOwnProperty.call(context.items, key)) {
-          //     const _key = key as SN;
-          //     const element = context.items[_key];
-          //   }
-          // }
-          // return true;
-          throw '//TODO : Implement by fsf';
-        },
+        itemsNotEmpty,
         noCurrentPage: ({ currentPage }) => !currentPage,
         queryIsStarted: context => !!context?.config?.queryTimer,
         queryTakesTooLong: context => {
-          throw '//TODO : Implement by @bemedev/fsf, use currentTile and notif time';
+          const props = { ...context, notification };
+          return _queryTakesTooLong(props);
         },
       },
       actions: {
         //TODO : Implement all, sometimes use @bemedev/fsf
+        setUser: assign((context, { data }) => {
+          context.user = data;
+        }),
+
+        escalateUserError: escalate('USER_ERROR'),
+
+        setConfig: () => void 0,
+
+        escalateConfigError: escalate('CONFIG_ERROR'),
+
+        setName: assign((context, event) => {
+          context.name = event.data.name;
+        }),
+
+        escalateTimeError: escalate('TIME_ERROR'),
+
+        setDefaultPageSize: assign(context => {
+          context.pageSize = DEFAULT_PAGE_SIZE;
+        }),
+
+        assignItems: assign((context, event) => {
+          const rawItems = event.data.items;
+          context.items = rawItems as any;
+        }),
+
+        assignAllTotal: assign((context, event) => {
+          context.allTotal = event.data.allTotal;
+        }),
+
+        setCurrentPage: assign((context, event) => {
+          context.currentPage = event.data.currentPage ?? 0;
+        }),
+
+        setEmptyPages: assign(context => {
+          context.pages = {};
+        }),
+
+        'send/notifyTakesTooLong': sendParent(({ name }) => ({
+          type: `${name}/TAKES_TOO_LONG`,
+        })),
+
+        closeQueryTimer: assign(context => {
+          context.config = assignObject(
+            context.config,
+            'queryTimer',
+            undefined,
+          );
+        }),
+
+        startQueryTimer: assign(context => {
+          context.config = assignObject(
+            context.config,
+            'queryTimer',
+            Date.now(),
+          );
+        }),
       },
       delays: {
         DISPLAY_TIME: display,
