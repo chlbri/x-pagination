@@ -5,7 +5,7 @@ import {
 } from './constants';
 import { TimerArgs } from './types';
 
-export function assignTimers(args?: TimerArgs) {
+export function _assignTimers(args?: TimerArgs) {
   const displayTime = args?.displayTime || DEFAULT_DISPLAY_TIME;
   const errorTime = args?.errorTime || DEFAULT_ERROR_TIME;
   const notificationTime =

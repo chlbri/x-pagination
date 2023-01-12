@@ -22,7 +22,6 @@
         eventsCausingActions: {
           "assignAllTotal": "RECEIVE";
 "assignItems": "RECEIVE";
-"assignTimers": "CONFIG";
 "closeQueryTimer": "" | "xstate.stop";
 "constructIds": "";
 "constructPages": "";

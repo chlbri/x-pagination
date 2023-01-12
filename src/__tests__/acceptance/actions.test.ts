@@ -1,11 +1,6 @@
 import { interpret } from '@bemedev/x-test';
 import { nanoid } from 'nanoid';
-import {
-  DEFAULT_DISPLAY_TIME,
-  DEFAULT_ERROR_TIME,
-  DEFAULT_NOTIFICATION_TIME,
-  DEFAULT_PAGE_SIZE,
-} from 'src/constants';
+import { DEFAULT_PAGE_SIZE } from 'src/constants';
 import { Context, Events, Item, Items, ItemWithPosition } from 'src/types';
 import { describe, expect, test } from 'vitest';
 import { PaginationMachine } from '../../machine';
@@ -17,26 +12,9 @@ const { assign, sendAction, action } = interpret(PaginationMachine);
 /** Default context */
 const context: Context = {};
 
-describe.concurrent('assignTimers', () => {
-  const [acceptance, _test] = assign('assignTimers');
-  test.concurrent('#0: Acceptance', acceptance);
-
-  test.concurrent('#1: Timers are undefined', () => {
-    const expected: Context = {
-      timers: {
-        displayTime: DEFAULT_DISPLAY_TIME,
-        notificationTime: DEFAULT_NOTIFICATION_TIME,
-        errorTime: DEFAULT_ERROR_TIME,
-      },
-    };
-    const event = {} as any;
-    _test({ expected, event, context });
-  });
-});
-
 describe.concurrent('setDefaultPageSize', () => {
   const [acceptance, _test] = assign('setDefaultPageSize');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: Timers are undefined', () => {
     _test({
@@ -50,7 +28,7 @@ describe.concurrent('setDefaultPageSize', () => {
 
 describe.concurrent('setName', () => {
   const [acceptance, _test] = assign('setName');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: Timers are undefined', () => {
     const name = 'PAGIN';
@@ -66,7 +44,7 @@ describe.concurrent('setName', () => {
 
 describe.concurrent('assignItems', () => {
   const [acceptance, _expect] = assign('assignItems');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: Assign incoming items', () => {
     const items: ItemWithPosition[] = [
@@ -99,7 +77,7 @@ describe.concurrent('assignItems', () => {
 
 describe.concurrent('assignAllTotal', () => {
   const [acceptance, _expect] = assign('assignAllTotal');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: Assign incoming allTotal', () => {
     const allTotal = 60;
@@ -119,7 +97,7 @@ describe.concurrent('assignAllTotal', () => {
 
 describe.concurrent('setCurrentPage', () => {
   const [acceptance, _expect] = assign('setCurrentPage');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: Assign incoming currentPage', () => {
     const currentPage = 6;
@@ -151,7 +129,7 @@ describe.concurrent('setCurrentPage', () => {
 
 describe.concurrent('setEmptyPages', () => {
   const [acceptance, _expect] = assign('setEmptyPages');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: Set empty pages', () => {
     const expected: Context = {
@@ -164,7 +142,7 @@ describe.concurrent('setEmptyPages', () => {
 
 describe.concurrent('send/notifyTakesTooLong', () => {
   const [acceptance, _test] = sendAction('send/notifyTakesTooLong');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: Escalate user error', () => {
     const context: Context = { name: 'PAGIN' };
@@ -287,7 +265,7 @@ describe.concurrent('startQueryTimer', () => {
 
 describe.concurrent('setTotal', () => {
   const [acceptance, _test] = assign('setTotal');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   const items = {
     0: { name: 'zero', id: nanoid() },
@@ -306,7 +284,7 @@ describe.concurrent('setTotal', () => {
 
 describe.concurrent('setTotalPages', () => {
   const [acceptance, _test] = assign('setTotalPages');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   const ids = {
     0: ['zero'],
@@ -325,7 +303,7 @@ describe.concurrent('setTotalPages', () => {
 
 describe.concurrent('setDefaultPage', () => {
   const [acceptance, _test] = assign('setDefaultPage');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: set page to 0', () => {
     _test({ expected: { currentPage: 0 }, context });
@@ -334,7 +312,7 @@ describe.concurrent('setDefaultPage', () => {
 
 describe.concurrent('setCurrentItems', () => {
   const [acceptance, _test] = assign('setCurrentItems');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: Construct the current displayed items', () => {
     const pages = {
@@ -364,7 +342,7 @@ describe.concurrent('setCurrentItems', () => {
 
 describe.concurrent('send/currentItems', () => {
   const [acceptance, _test] = sendAction('send/currentItems');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: Send the current items to parent', () => {
     const currentItems: Item[] = [
@@ -390,7 +368,7 @@ describe.concurrent('send/currentItems', () => {
 
 describe.concurrent('send/next', () => {
   const [acceptance, _test] = sendAction('send/next');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: Send the current items to parent', () => {
     const name = 'PAGIN';
@@ -410,7 +388,7 @@ describe.concurrent('send/next', () => {
 
 describe.concurrent('send/previous', () => {
   const [acceptance, _test] = sendAction('send/previous');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: Send the current items to parent', () => {
     const name = 'PAGIN';
@@ -430,7 +408,7 @@ describe.concurrent('send/previous', () => {
 
 describe.concurrent('send/first', () => {
   const [acceptance, _test] = sendAction('send/first');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: Send the current items to parent', () => {
     const name = 'PAGIN';
@@ -450,7 +428,7 @@ describe.concurrent('send/first', () => {
 
 describe.concurrent('send/last', () => {
   const [acceptance, _test] = sendAction('send/last');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: Send the current items to parent', () => {
     const name = 'PAGIN';
@@ -470,7 +448,7 @@ describe.concurrent('send/last', () => {
 
 describe.concurrent('send/goto', () => {
   const [acceptance, _test] = sendAction('send/goto');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: Send the current items to parent', () => {
     const name = 'PAGIN';
@@ -498,7 +476,7 @@ describe.concurrent('send/goto', () => {
 
 describe.concurrent('setPageSize', () => {
   const [acceptance, _test] = assign('setPageSize');
-  test.concurrent('#0: Acceptance', acceptance);
+  test.concurrent('#0: Acceptance', () => acceptance());
 
   test.concurrent('#1: Construct the current displayed items', () => {
     const pageSize = 13;

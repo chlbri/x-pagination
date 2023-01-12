@@ -13,7 +13,7 @@ import {
   _constructPages,
 } from './functions';
 import { _constructIds } from './functions/constructIds';
-import { assignObject, assignTimers } from './helpers';
+import { assignObject } from './helpers';
 import { Context, Events, SN } from './types';
 
 /**
@@ -44,7 +44,7 @@ export const PaginationMachine = createMachine(
         on: {
           CONFIG: {
             target: 'work',
-            actions: ['assignTimers', 'setName'],
+            actions: ['setName'],
           },
         },
       },
@@ -190,10 +190,6 @@ export const PaginationMachine = createMachine(
       queryTakesTooLong,
     },
     actions: {
-      assignTimers: assign((context, { data }) => {
-        context.timers = assignTimers(data);
-      }),
-
       setName: assign((context, { data }) => {
         context.name = data.name;
       }),
@@ -302,10 +298,12 @@ export const PaginationMachine = createMachine(
     },
     delays: {
       DISPLAY_TIME: context => {
-        return context?.timers?.displayTime ?? DEFAULT_DISPLAY_TIME;
+        const displayTime = context?.timers?.displayTime;
+        return displayTime ?? DEFAULT_DISPLAY_TIME;
       },
       QUERY_ERROR: context => {
-        return context?.timers?.errorTime ?? DEFAULT_ERROR_TIME;
+        const errorTime = context?.timers?.errorTime;
+        return errorTime ?? DEFAULT_ERROR_TIME;
       },
     },
   },

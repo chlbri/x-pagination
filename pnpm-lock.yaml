@@ -2,7 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@bemedev/fsf': ^0.6.2
-  '@bemedev/x-test': 0.2.3
+  '@bemedev/x-test': 0.3.0
   '@types/node': ^18.11.18
   '@typescript-eslint/eslint-plugin': ^5.48.1
   '@typescript-eslint/parser': ^5.48.1
@@ -23,7 +23,7 @@ specifiers:
   ts-node: ^10.9.1
   tslib: ^2.4.1
   ttypescript: ^1.5.15
-  typescript: ^4.9.4
+  typescript: ^4.9.3
   typescript-transform-paths: ^3.4.6
   vite: 3.2.4
   vite-tsconfig-paths: ^4.0.3
@@ -33,7 +33,7 @@ specifiers:
 
 devDependencies:
   '@bemedev/fsf': 0.6.2
-  '@bemedev/x-test': 0.2.3_xstate@4.35.2
+  '@bemedev/x-test': 0.3.0_xstate@4.35.2
   '@types/node': 18.11.18
   '@typescript-eslint/eslint-plugin': 5.48.1_3jon24igvnqaqexgwtxk6nkpse
   '@typescript-eslint/parser': 5.48.1_iukboom6ndih5an6iafl45j2fe
@@ -88,8 +88,8 @@ packages:
       '@bemedev/decompose': 0.1.6
     dev: true
 
-  /@bemedev/x-test/0.2.3_xstate@4.35.2:
-    resolution: {integrity: sha512-gv2kga7Xm0h8wE6w89RopYWPBeBKn+8NV//z8Nfautu11vapzqjs+daaf/eDk7T2GZpNm96YvTKiniHBtZICvg==}
+  /@bemedev/x-test/0.3.0_xstate@4.35.2:
+    resolution: {integrity: sha512-p8pQ8/kZ3ZRJTDGVZPlhcEgV7pI1z2/iCtzJi2vy8+AeByBfn9uNKiH5BAiVK2/ZVvBQobvXwXShDVM72hjq5g==}
     engines: {node: '>=14'}
     peerDependencies:
       xstate: ^4.30.6
