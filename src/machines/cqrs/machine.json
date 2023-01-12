@@ -1,0 +1,354 @@
+{
+  "id": "table",
+  "initial": "config",
+  "states": {
+    "cache": {
+      "exit": "buildItems",
+      "invoke": {
+        "src": "cache",
+        "id": "cache",
+        "onDone": [
+          {
+            "target": "work",
+            "actions": [
+              "setItems",
+              "setItemIDs",
+              "setQuery",
+              "addQueryToCache"
+            ]
+          }
+        ],
+        "onError": [
+          {
+            "target": "work",
+            "actions": "escalateCacheError"
+          }
+        ]
+      }
+    },
+    "config": {
+      "description": "Everything you need to configure before running anything",
+      "initial": "environment",
+      "states": {
+        "optional": {
+          "description": "A specific config (optional) you want to add",
+          "invoke": {
+            "src": "optional",
+            "id": "optional",
+            "onError": [
+              {
+                "target": "#table.error",
+                "actions": "escalateConfigError"
+              }
+            ],
+            "onDone": [
+              {
+                "target": "#table.user"
+              }
+            ]
+          }
+        },
+        "environment": {
+          "invoke": {
+            "src": "getEnVariables",
+            "id": "getEnVariables",
+            "onDone": [
+              {
+                "target": "optional",
+                "actions": "setEnVariables"
+              }
+            ],
+            "onError": [
+              {
+                "target": "#table.error",
+                "actions": "escalateEnvError"
+              }
+            ]
+          }
+        }
+      }
+    },
+    "work": {
+      "states": {
+        "cqrs": {
+          "invoke": {
+            "src": "cqrs",
+            "id": "cqrs",
+            "onError": [
+              {
+                "target": "#table.error",
+                "actions": "escalateDataError"
+              }
+            ]
+          },
+          "initial": "busy",
+          "states": {
+            "busy": {
+              "after": {
+                "THROTTLE_TIME": {
+                  "target": "#table.work.cqrs.ready",
+                  "actions": [],
+                  "internal": false
+                }
+              }
+            },
+            "ready": {
+              "description": "Ready for commands",
+              "on": {
+                "CQRS/SEND/CREATE": {
+                  "target": "resetCache",
+                  "actions": "cqrs/create"
+                },
+                "CQRS/SEND/UPDATE": {
+                  "target": "resetCache",
+                  "actions": "cqrs/update"
+                },
+                "CQRS/SEND/QUERY": {
+                  "target": "cacheQuery",
+                  "actions": "setQuery"
+                },
+                "CQRS/SEND/REMOVE": {
+                  "target": "resetCache",
+                  "actions": "cqrs/remove"
+                },
+                "CQRS/SEND/DELETE": {
+                  "target": "resetCache",
+                  "actions": "cqrs/delete"
+                },
+                "CQRS/SEND/MORE": {
+                  "target": "cacheMore",
+                  "actions": "setQuery"
+                },
+                "CQRS/SEND/REFETCH": {
+                  "target": "busy",
+                  "actions": "cqrs/refetch"
+                }
+              }
+            },
+            "resetCache": {
+              "always": {
+                "target": "busy",
+                "actions": "cqrs/resetCache"
+              }
+            },
+            "cacheQuery": {
+              "initial": "check",
+              "states": {
+                "check": {
+                  "always": [
+                    {
+                      "target": "produce",
+                      "cond": "queryIsCached"
+                    },
+                    {
+                      "target": "send"
+                    }
+                  ]
+                },
+                "produce": {
+                  "initial": "check",
+                  "states": {
+                    "check": {
+                      "always": [
+                        {
+                          "target": "items",
+                          "cond": "itemsAreCached"
+                        },
+                        {
+                          "target": "send"
+                        }
+                      ]
+                    },
+                    "send": {
+                      "entry": "cqrs/query",
+                      "type": "final"
+                    },
+                    "items": {
+                      "entry": "setCurrentItems",
+                      "type": "final"
+                    }
+                  }
+                },
+                "send": {
+                  "entry": "cqrs/query",
+                  "type": "final"
+                }
+              },
+              "onDone": {
+                "target": "busy",
+                "actions": "addQueryToCache"
+              }
+            },
+            "cacheMore": {
+              "exit": "cqrs/removeLastQuery",
+              "initial": "check",
+              "states": {
+                "check": {
+                  "exit": "cqrs/addToPreviousQuery",
+                  "always": [
+                    {
+                      "target": "produce",
+                      "cond": "queryIsCached"
+                    },
+                    {
+                      "target": "send"
+                    }
+                  ]
+                },
+                "produce": {
+                  "initial": "check",
+                  "states": {
+                    "check": {
+                      "always": [
+                        {
+                          "target": "items",
+                          "cond": "itemsAreCached"
+                        },
+                        {
+                          "target": "send"
+                        }
+                      ]
+                    },
+                    "send": {
+                      "entry": "cqrs/more",
+                      "type": "final"
+                    },
+                    "items": {
+                      "entry": "setCurrentItems",
+                      "type": "final"
+                    }
+                  }
+                },
+                "send": {
+                  "entry": "cqrs/more",
+                  "type": "final"
+                }
+              },
+              "onDone": {
+                "target": "busy",
+                "actions": "addQueryToCache"
+              }
+            }
+          },
+          "on": {
+            "CQRS/REVERSE_ORDER": {
+              "actions": "cqrs/reverseItemsOrder"
+            }
+          }
+        },
+        "pagination": {
+          "entry": [
+            "setTotal",
+            "pagination/setTotalPages",
+            "pagination/setDefaultPage"
+          ],
+          "initial": "config",
+          "states": {
+            "busy": {
+              "entry": [
+                "pagination/setHasNextPage",
+                "pagination/setHasPreviousPage",
+                "pagination/setCanFetchMoreNext",
+                "pagination/setCanFetchMorePrevious"
+              ],
+              "exit": "setCurrentItems",
+              "after": {
+                "DISPLAY_TIME": {
+                  "target": "#table.work.pagination.ready",
+                  "actions": [],
+                  "internal": false
+                }
+              }
+            },
+            "ready": {
+              "on": {
+                "PAGINATION/GOTO_NEXT_PAGE": {
+                  "target": "busy",
+                  "actions": ["pagination/nextPage", "cqrs/nextPage"]
+                },
+                "PAGINATION/GOTO_PREVIOUS_PAGE": {
+                  "target": "busy",
+                  "actions": [
+                    "pagination/previousPage",
+                    "cqrs/previousPage"
+                  ]
+                },
+                "PAGINATION/GOTO": {
+                  "target": "busy",
+                  "actions": ["pagination/goto", "cqrs/goto"]
+                },
+                "PAGINATION/GOTO_FIRST_PAGE": {
+                  "target": "busy",
+                  "actions": ["pagination/firstPage", "cqrs/firstPage"]
+                },
+                "PAGINATION/GOTO_LAST_PAGE": {
+                  "target": "busy",
+                  "actions": ["pagination/lastPage", "cqrs/lastPage"]
+                },
+                "PAGINATION/SET_PAGE_SIZE": {
+                  "target": "busy",
+                  "actions": "pagination/setPageSize"
+                }
+              }
+            },
+            "config": {
+              "always": [
+                {
+                  "target": "busy",
+                  "cond": "hasPageSize"
+                },
+                {
+                  "target": "busy",
+                  "actions": "pagination/setDefaultPageSize"
+                }
+              ]
+            }
+          },
+          "on": {
+            "CQRS/RECEIVE/ITEMS": {
+              "target": "pagination",
+              "actions": ["setItems", "setItemIDs"],
+              "internal": false
+            },
+            "CQRS/RECEIVE/ALL_TOTAL": {
+              "target": "pagination",
+              "actions": "setAllTotal",
+              "internal": false
+            },
+            "CQRS/RECEIVE/MORE": {
+              "target": "pagination",
+              "actions": ["addItems", "setItemIDs"],
+              "internal": false
+            }
+          }
+        }
+      },
+      "type": "parallel"
+    },
+    "user": {
+      "invoke": {
+        "src": "getUser",
+        "id": "getUser",
+        "onDone": [
+          {
+            "target": "cache",
+            "actions": "setUser"
+          }
+        ],
+        "onError": [
+          {
+            "target": "error",
+            "actions": "escalateUserError"
+          }
+        ]
+      }
+    },
+    "error": {
+      "on": {
+        "RINIT": {
+          "target": "config"
+        }
+      }
+    }
+  }
+}
