@@ -1,9 +1,15 @@
 import { interpret } from '@bemedev/x-test';
 import { nanoid } from 'nanoid';
-import { DEFAULT_PAGE_SIZE } from 'src/constants';
-import { Context, Events, Item, Items, ItemWithPosition } from 'src/types';
 import { describe, expect, test } from 'vitest';
-import { PaginationMachine } from '../../machine';
+import { DEFAULT_PAGE_SIZE } from '~pagination/constants';
+import { PaginationMachine } from '~pagination/machine';
+import {
+  Context,
+  Events,
+  Item,
+  Items,
+  ItemWithPosition,
+} from '~pagination/types';
 
 //TODO : Acceptance for actions
 

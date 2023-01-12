@@ -1,8 +1,11 @@
 import { ALWAYS_TIME } from '@bemedev/x-test';
 import { nanoid } from 'nanoid';
-import { DEFAULT_DISPLAY_TIME, DEFAULT_ERROR_TIME } from 'src/constants';
-import { PaginationMachine } from 'src/machine';
 import { describe, test } from 'vitest';
+import {
+  DEFAULT_DISPLAY_TIME,
+  DEFAULT_ERROR_TIME,
+} from '~pagination/constants';
+import { PaginationMachine } from '~pagination/machine';
 import { advanceInTime, useFakeTime, usePrepareMachine } from './fixtures';
 
 useFakeTime();

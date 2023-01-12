@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { createLogic, interpret } from '@bemedev/fsf';
-import { Context as MContext, Item, Pages, SN } from 'src/types';
+import { Context as MContext, Item, Pages, SN } from '~pagination/types';
 
 export type Event = Pick<MContext, 'items' | 'pageSize'>;
 

@@ -1,6 +1,6 @@
 import { interpret } from '@bemedev/x-test';
 import { describe, test } from 'vitest';
-import { PaginationMachine } from '../../machine';
+import { PaginationMachine } from '~pagination/machine';
 
 const notification = 200;
 

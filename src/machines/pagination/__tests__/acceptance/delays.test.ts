@@ -1,7 +1,10 @@
 import { interpret } from '@bemedev/x-test';
-import { DEFAULT_DISPLAY_TIME, DEFAULT_ERROR_TIME } from 'src/constants';
-import { PaginationMachine } from 'src/machine';
 import { describe, test } from 'vitest';
+import {
+  DEFAULT_DISPLAY_TIME,
+  DEFAULT_ERROR_TIME,
+} from '~pagination/constants';
+import { PaginationMachine } from '~pagination/machine';
 
 const { delay } = interpret(PaginationMachine);
 
