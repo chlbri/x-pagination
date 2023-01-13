@@ -27,9 +27,9 @@
 "update": "done.invoke.update";
         };
         missingImplementations: {
-          actions: "'cqrs/removeLastQuery'" | "addToPreviousQuery" | "create" | "delete" | "remove" | "resetCache" | "setCurrentItems" | "setItems" | "setQuery" | "update";
+          actions: "'cqrs/removeLastQuery'" | "addToPreviousQuery" | "create" | "delete" | "escalateError" | "getCachedIds" | "remove" | "resetAttempts" | "resetCache" | "setConfig" | "setCurrentItems" | "setCurrentQueryToPrevious" | "setItems" | "setQuery" | "update";
           delays: "THROTTLE_TIME";
-          guards: "itemsAreCached" | "queryIsCached" | "triesNotReached";
+          guards: never;
           services: "create" | "delete" | "read" | "remove" | "update";
         };
         eventsCausingActions: {
@@ -37,15 +37,20 @@
 "addToPreviousQuery": "" | "xstate.stop";
 "create": "done.invoke.create";
 "delete": "done.invoke.delete";
+"escalateError": "error.platform.create" | "error.platform.delete" | "error.platform.read" | "error.platform.remove" | "error.platform.update";
+"getCachedIds": "";
 "remove": "done.invoke.remove";
+"resetAttempts": "";
 "resetCache": "done.invoke.create" | "done.invoke.delete" | "done.invoke.remove" | "done.invoke.update" | "error.platform.create" | "error.platform.delete" | "error.platform.remove" | "error.platform.update" | "xstate.stop";
+"setConfig": "SET_CONFIG";
 "setCurrentItems": "";
+"setCurrentQueryToPrevious": "" | "xstate.stop";
 "setItems": "done.invoke.read";
 "setQuery": "READ" | "READ_MORE";
 "update": "done.invoke.update";
         };
         eventsCausingDelays: {
-          "THROTTLE_TIME": "" | "done.invoke.create" | "done.invoke.delete" | "done.invoke.read" | "done.invoke.remove" | "done.invoke.update" | "xstate.init";
+          "THROTTLE_TIME": "" | "SET_CONFIG" | "done.invoke.create" | "done.invoke.delete" | "done.invoke.read" | "done.invoke.remove" | "done.invoke.update";
         };
         eventsCausingGuards: {
           "itemsAreCached": "";
@@ -59,7 +64,7 @@
 "remove": "REMOVE";
 "update": "UPDATE";
         };
-        matchesStates: "busy" | "cache" | "cache.more" | "cache.more.check" | "cache.more.items" | "cache.query" | "cache.query.check" | "cache.query.items" | "create" | "delete" | "error" | "idle" | "read" | "remove" | "update" | { "cache"?: "more" | "query" | { "more"?: "check" | "items";
+        matchesStates: "busy" | "cache" | "cache.more" | "cache.more.check" | "cache.more.items" | "cache.query" | "cache.query.check" | "cache.query.items" | "config" | "create" | "delete" | "error" | "idle" | "read" | "remove" | "update" | { "cache"?: "more" | "query" | { "more"?: "check" | "items";
 "query"?: "check" | "items"; }; };
         tags: never;
       }
