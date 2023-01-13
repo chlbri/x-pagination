@@ -2,7 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@bemedev/fsf': ^0.6.2
-  '@bemedev/x-test': 0.3.0
+  '@bemedev/x-test': 0.5.0
   '@types/node': ^18.11.18
   '@typescript-eslint/eslint-plugin': ^5.48.1
   '@typescript-eslint/parser': ^5.48.1
@@ -33,7 +33,7 @@ specifiers:
 
 devDependencies:
   '@bemedev/fsf': 0.6.2
-  '@bemedev/x-test': 0.3.0_xstate@4.35.2
+  '@bemedev/x-test': 0.5.0_xstate@4.35.2
   '@types/node': 18.11.18
   '@typescript-eslint/eslint-plugin': 5.48.1_3jon24igvnqaqexgwtxk6nkpse
   '@typescript-eslint/parser': 5.48.1_iukboom6ndih5an6iafl45j2fe
@@ -88,8 +88,8 @@ packages:
       '@bemedev/decompose': 0.1.6
     dev: true
 
-  /@bemedev/x-test/0.3.0_xstate@4.35.2:
-    resolution: {integrity: sha512-p8pQ8/kZ3ZRJTDGVZPlhcEgV7pI1z2/iCtzJi2vy8+AeByBfn9uNKiH5BAiVK2/ZVvBQobvXwXShDVM72hjq5g==}
+  /@bemedev/x-test/0.5.0_xstate@4.35.2:
+    resolution: {integrity: sha512-mpWyAQ6YIHMztOVcj2lChFD1SbWmdNV5B75gT5CLvOg6JFebHV68y9xNgTxkUq0hZzizsOhQFJYbOWTlTc1u3Q==}
     engines: {node: '>=14'}
     peerDependencies:
       xstate: ^4.30.6
