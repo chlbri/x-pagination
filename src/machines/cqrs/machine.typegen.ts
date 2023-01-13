@@ -27,17 +27,22 @@
 "update": "done.invoke.update";
         };
         missingImplementations: {
-          actions: "'cqrs/removeLastQuery'" | "addToPreviousQuery" | "resetCache" | "setCurrentItems" | "setQuery";
+          actions: "'cqrs/removeLastQuery'" | "addToPreviousQuery" | "create" | "delete" | "remove" | "resetCache" | "setCurrentItems" | "setItems" | "setQuery" | "update";
           delays: "THROTTLE_TIME";
-          guards: "itemsAreCached" | "queryIsCached";
+          guards: "itemsAreCached" | "queryIsCached" | "triesNotReached";
           services: "create" | "delete" | "read" | "remove" | "update";
         };
         eventsCausingActions: {
           "'cqrs/removeLastQuery'": "" | "xstate.stop";
 "addToPreviousQuery": "" | "xstate.stop";
-"resetCache": "";
+"create": "done.invoke.create";
+"delete": "done.invoke.delete";
+"remove": "done.invoke.remove";
+"resetCache": "done.invoke.create" | "done.invoke.delete" | "done.invoke.remove" | "done.invoke.update" | "error.platform.create" | "error.platform.delete" | "error.platform.remove" | "error.platform.update" | "xstate.stop";
 "setCurrentItems": "";
+"setItems": "done.invoke.read";
 "setQuery": "READ" | "READ_MORE";
+"update": "done.invoke.update";
         };
         eventsCausingDelays: {
           "THROTTLE_TIME": "" | "done.invoke.create" | "done.invoke.delete" | "done.invoke.read" | "done.invoke.remove" | "done.invoke.update" | "xstate.init";
@@ -45,6 +50,7 @@
         eventsCausingGuards: {
           "itemsAreCached": "";
 "queryIsCached": "";
+"triesNotReached": "";
         };
         eventsCausingServices: {
           "create": "CREATE";

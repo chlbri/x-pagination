@@ -1,10 +1,13 @@
 import { createMachine } from 'xstate';
+import { Context } from './types';
 
 export const CqrsMachine = createMachine({
   predictableActionArguments: true,
   preserveActionOrder: true,
   tsTypes: {} as import('./machine.typegen').Typegen0,
-  schema: {},
+  schema: {
+    context: {} as Context,
+  },
   context: {},
 
   id: 'cqrs',
@@ -44,14 +47,15 @@ export const CqrsMachine = createMachine({
         },
       },
     },
-    // #region Database
     create: {
+      exit: 'resetCache',
       invoke: {
         src: 'create',
         id: 'create',
         onDone: [
           {
             target: 'busy',
+            actions: 'create',
           },
         ],
         onError: [
@@ -62,13 +66,13 @@ export const CqrsMachine = createMachine({
       },
     },
     read: {
-      entry: 'resetCache',
       invoke: {
         src: 'read',
         id: 'read',
         onDone: [
           {
             target: 'busy',
+            actions: 'setItems',
           },
         ],
         onError: [
@@ -79,12 +83,14 @@ export const CqrsMachine = createMachine({
       },
     },
     update: {
+      exit: 'resetCache',
       invoke: {
         src: 'update',
         id: 'update',
         onDone: [
           {
             target: 'busy',
+            actions: 'update',
           },
         ],
         onError: [
@@ -95,12 +101,14 @@ export const CqrsMachine = createMachine({
       },
     },
     delete: {
+      exit: 'resetCache',
       invoke: {
         src: 'delete',
         id: 'delete',
         onDone: [
           {
             target: 'busy',
+            actions: 'delete',
           },
         ],
         onError: [
@@ -111,12 +119,14 @@ export const CqrsMachine = createMachine({
       },
     },
     remove: {
+      exit: 'resetCache',
       invoke: {
         src: 'remove',
         id: 'remove',
         onDone: [
           {
             target: 'busy',
+            actions: 'remove',
           },
         ],
         onError: [
@@ -126,7 +136,6 @@ export const CqrsMachine = createMachine({
         ],
       },
     },
-    // #endregion
     cache: {
       states: {
         query: {
@@ -192,6 +201,7 @@ export const CqrsMachine = createMachine({
     error: {
       always: {
         target: 'busy',
+        cond: 'triesNotReached',
       },
     },
   },

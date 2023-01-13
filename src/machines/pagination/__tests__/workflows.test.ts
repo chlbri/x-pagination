@@ -6,7 +6,11 @@ import {
   DEFAULT_ERROR_TIME,
 } from '~pagination/constants';
 import { PaginationMachine } from '~pagination/machine';
-import { advanceInTime, useFakeTime, usePrepareMachine } from './fixtures';
+import {
+  advanceInTime,
+  useFakeTime,
+  usePrepareMachine,
+} from '../../../fixtures';
 
 useFakeTime();
 
