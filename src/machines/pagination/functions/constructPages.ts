@@ -2,14 +2,14 @@
 import { createLogic, interpret } from '@bemedev/fsf';
 import { Context as MContext, Item, Pages, SN } from '~pagination/types';
 
-export type Event = Pick<MContext, 'items' | 'pageSize'>;
+type Event = Pick<MContext, 'items' | 'pageSize'>;
 
-export type Context = {
+type Context = {
   entries?: [SN, Item][];
   pages?: Pages;
 };
 
-export const logic = createLogic(
+const logic = createLogic(
   {
     context: {},
     initial: 'entries',

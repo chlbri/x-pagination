@@ -1,8 +1,11 @@
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 
+import { assign } from '@xstate/immer';
 import { createMachine } from 'xstate';
-import { Context } from './types';
+import { _addQueryToCache } from './functions';
+import { _setCurrentQueryToPrevious } from './functions/setCurrentQueryToPrevious';
+import { Context, Events, Services } from './types';
 
 export const CqrsMachine = createMachine(
   {
@@ -11,6 +14,8 @@ export const CqrsMachine = createMachine(
     tsTypes: {} as import('./machine.typegen').Typegen0,
     schema: {
       context: {} as Context,
+      events: {} as Events,
+      services: {} as Services,
     },
     context: {},
 
@@ -28,6 +33,13 @@ export const CqrsMachine = createMachine(
       },
       idle: {
         description: 'Center of commands',
+        after: {
+          TIME_TO_REFETCH: {
+            target: '#cqrs.read',
+            actions: [],
+            internal: false,
+          },
+        },
         on: {
           DELETE: {
             target: 'delete',
@@ -47,7 +59,11 @@ export const CqrsMachine = createMachine(
           },
           READ_MORE: {
             target: '#cqrs.cache.more',
+            cond: 'cacheIsNotEmpty',
             actions: 'setQuery',
+          },
+          REFETCH: {
+            target: 'read',
           },
         },
       },
@@ -58,8 +74,7 @@ export const CqrsMachine = createMachine(
           id: 'create',
           onDone: [
             {
-              target: 'busy',
-              actions: 'create',
+              target: 'read',
             },
           ],
           onError: [
@@ -70,13 +85,14 @@ export const CqrsMachine = createMachine(
         },
       },
       read: {
+        description: 'Query the db',
         invoke: {
           src: 'read',
           id: 'read',
           onDone: [
             {
               target: 'busy',
-              actions: 'setItems',
+              actions: ['setItems', 'addQueryToCache'],
             },
           ],
           onError: [
@@ -93,8 +109,7 @@ export const CqrsMachine = createMachine(
           id: 'update',
           onDone: [
             {
-              target: 'busy',
-              actions: 'update',
+              target: 'read',
             },
           ],
           onError: [
@@ -111,8 +126,7 @@ export const CqrsMachine = createMachine(
           id: 'delete',
           onDone: [
             {
-              target: 'busy',
-              actions: 'delete',
+              target: 'read',
             },
           ],
           onError: [
@@ -129,8 +143,7 @@ export const CqrsMachine = createMachine(
           id: 'remove',
           onDone: [
             {
-              target: 'busy',
-              actions: 'remove',
+              target: 'read',
             },
           ],
           onError: [
@@ -251,6 +264,29 @@ export const CqrsMachine = createMachine(
         return ids.every(id => items.some(({ item }) => item.id === id));
       },
     },
-    actions: {},
+    actions: {
+      setItems: assign((context, event) => {
+        const len = context.items?.length || 0;
+        const rawItems = event.data.items;
+        // TODO: fsf it
+        context.items = event.data.items.map((item, index) => ({
+          __position__: index,
+          item,
+        }));
+      }),
+
+      setCurrentQueryToPrevious: assign(context => {
+        const caches = context.caches!;
+        context.currentQuery = _setCurrentQueryToPrevious([...caches]);
+      }),
+
+      resetCache: assign(context => {
+        context.caches = undefined;
+      }),
+
+      addQueryToCache: assign(context => {
+        context.caches = _addQueryToCache({ ...context });
+      }),
+    },
   },
 );

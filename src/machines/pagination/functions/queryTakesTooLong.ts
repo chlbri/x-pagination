@@ -1,7 +1,7 @@
 import { createLogic, interpret, returnTrue } from '@bemedev/fsf';
 import { Context } from '~pagination/types';
 
-export const logic = createLogic(
+const logic = createLogic(
   {
     context: {},
     initial: 'definition',

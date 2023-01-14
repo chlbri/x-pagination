@@ -1,22 +1,7 @@
 import { createLogic, interpret, returnTrue } from '@bemedev/fsf';
 import { Context } from '~pagination/types';
 
-// export function _itemsNotEmpty<T extends object = object>(
-//   context: Pick<Context<T>, 'items'>,
-// ) {
-//   const items = context.items;
-//   if (!items) return false;
-//   for (const key in context.items) {
-//     if (Object.prototype.hasOwnProperty.call(context.items, key)) {
-//       const _key = key as SN;
-//       const element = context.items[_key];
-//       const empty = !element
-//       if(empty) return false
-//     }
-//   }
-// }
-
-export const logic = createLogic(
+const logic = createLogic(
   {
     context: {},
     initial: 'definition',
