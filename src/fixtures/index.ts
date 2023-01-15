@@ -1,3 +1,3 @@
 export * from './advanceInTime';
-export * from './useDescribe';
+export * from './useFakeTime';
 export * from './usePrepareMachine';

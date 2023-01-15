@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { createLogic, interpret } from '@bemedev/fsf';
-import { Cache } from '~cqrs/types';
+import { Cache, Query } from '~cqrs/types';
 
 type Context = {
   index?: number;
-  currentQuery?: Record<string, any>;
+  currentQuery?: Query;
   cache?: Cache;
   key?: string;
 };
@@ -12,7 +12,7 @@ type Context = {
 export const logic = createLogic(
   {
     schema: {
-      data: {} as Record<string, any>,
+      data: {} as Query,
       events: {} as Cache[],
       context: {} as Context,
     },

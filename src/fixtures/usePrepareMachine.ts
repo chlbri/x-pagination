@@ -49,5 +49,7 @@ export function usePrepareMachine<
     });
   };
 
-  return [usePrepare, out] as const;
+  const { start, stop, ...rest } = out;
+
+  return [usePrepare, rest] as const;
 }

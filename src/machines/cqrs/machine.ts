@@ -3,6 +3,11 @@
 
 import { assign } from '@xstate/immer';
 import { createMachine } from 'xstate';
+import { assignObject } from '~pagination/helpers';
+import {
+  DEFAULT_THROTLLE_TIME,
+  DEFAULT_TIME_TO_REFECTH,
+} from './constants';
 import { _addQueryToCache } from './functions';
 import { _setCurrentQueryToPrevious } from './functions/setCurrentQueryToPrevious';
 import { Context, Events, Services } from './types';
@@ -185,11 +190,10 @@ export const CqrsMachine = createMachine(
             },
           },
           more: {
-            exit: "'cqrs/removeLastQuery'",
             initial: 'check',
             states: {
               check: {
-                exit: ['addToPreviousQuery', 'setCurrentQueryToPrevious'],
+                exit: 'addCurrentToPrevious',
                 always: [
                   {
                     target: 'items',
@@ -197,7 +201,7 @@ export const CqrsMachine = createMachine(
                     actions: 'getCachedIds',
                   },
                   {
-                    target: '#cqrs.read',
+                    target: '#cqrs.readMore',
                   },
                 ],
               },
@@ -209,14 +213,13 @@ export const CqrsMachine = createMachine(
                     actions: 'setCurrentItems',
                   },
                   {
-                    target: '#cqrs.read',
+                    target: '#cqrs.readMore',
                   },
                 ],
               },
             },
           },
         },
-        type: 'parallel',
       },
       error: {
         entry: 'escalateError',
@@ -238,33 +241,72 @@ export const CqrsMachine = createMachine(
           },
         },
       },
+      readMore: {
+        exit: ['setCurrentQueryToPrevious', 'removeLastQuery      '],
+        invoke: {
+          src: 'read',
+          id: 'readMore',
+          onDone: [
+            {
+              target: 'busy',
+              actions: ['setItems', 'addQueryToCache'],
+            },
+          ],
+          onError: [
+            {
+              target: 'error',
+            },
+          ],
+        },
+      },
     },
   },
   {
     guards: {
       triesNotReached: context => {
         const tries = context.config?.tries!;
-        const attempts = context.config?.attempts!;
-        return tries >= attempts;
+        const attempts = context.config?.attempts;
+        if (!attempts) return true;
+        return attempts >= tries;
       },
 
       queryIsCached: context => {
-        const caches = context.caches!;
+        const caches = context.caches;
+        if (!caches) return false;
         const currentQuery = context.currentQuery!;
+        const key = JSON.stringify(currentQuery);
 
-        return caches.some(
-          cache => cache.key === JSON.stringify(currentQuery),
-        );
+        return caches.some(cache => cache.key === key);
       },
 
       itemsAreCached: context => {
         const ids = context.cachedIds!;
-        const items = context.items!;
+        const items = context.items;
 
-        return ids.every(id => items.some(({ item }) => item.id === id));
+        return ids.every(id => items?.some(({ item }) => item.id === id));
+      },
+
+      cacheIsNotEmpty: context => {
+        const caches = context.caches;
+        return !!caches && caches.length > 0;
       },
     },
     actions: {
+      setConfig: assign((context, event) => {
+        const tries = event.data.tries;
+        context.config = assignObject(context.config, { tries });
+      }),
+
+      getCachedIds: assign(context => {
+        if (context.cachedIds) return;
+        const caches = context.caches!;
+        const currentQuery = context.currentQuery!;
+        const key = JSON.stringify(currentQuery);
+        key; //?
+        const cached = caches.find(cache => cache.key === key);
+        context.cachedIds = cached?.ids;
+      }),
+
       setItems: assign((context, event) => {
         const len = context.items?.length || 0;
         const rawItems = event.data.items;
@@ -275,9 +317,23 @@ export const CqrsMachine = createMachine(
         }));
       }),
 
+      setQuery: (context, { data }) => {
+        context.currentQuery = data;
+      },
+
       setCurrentQueryToPrevious: assign(context => {
-        const caches = context.caches!;
+        const caches = context.caches;
+        if (!caches) return;
         context.currentQuery = _setCurrentQueryToPrevious([...caches]);
+      }),
+
+      addCurrentToPrevious: assign(context => {
+        const caches = context.caches!;
+        const lastIndex = caches.length - 1;
+        const lastIds = caches[lastIndex].ids;
+        const beforeLastIds = caches[lastIndex - 1].ids;
+        const set = new Set([...lastIds, ...beforeLastIds]);
+        context.caches![lastIndex - 1].ids = Array.from(set);
       }),
 
       resetCache: assign(context => {
@@ -288,5 +344,17 @@ export const CqrsMachine = createMachine(
         context.caches = _addQueryToCache({ ...context });
       }),
     },
+    delays: {
+      THROTTLE_TIME: context => {
+        const out = context.config?.throttle || DEFAULT_THROTLLE_TIME;
+        return out;
+      },
+      TIME_TO_REFETCH: context => {
+        const out = context.config?.refetch || DEFAULT_TIME_TO_REFECTH;
+        return out;
+      },
+    },
   },
 );
+
+export type CqrsMachineType = typeof CqrsMachine;
