@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { createLogic, interpret } from '@bemedev/fsf';
-import { Cache, Query } from '~cqrs/types';
+import { Query } from 'src/types';
+import { Cache } from '~cqrs/types';
 
 type Context = {
   index?: number;

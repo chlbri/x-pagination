@@ -293,8 +293,8 @@ export const CqrsMachine = createMachine(
       }),
 
       setItems: assign((context, event) => {
-        const len = context.items?.length || 0;
-        const rawItems = event.data.items;
+        // const len = context.items?.length || 0;
+        // const rawItems = event.data.items;
         // TODO: fsf it
         // TODO: Push items, not set all
         context.items = event.data.items.map((item, index) => ({

@@ -45,7 +45,8 @@
     "resolveJsonModule": true,
     "baseUrl": ".",
     "paths": {
-      "~machine": ["src/machine.ts"]
+      "~pagination/*": ["src/machines/pagination/*"],
+      "~cqrs/*": ["src/machines/cqrs/*"]
     }
   }
 }
