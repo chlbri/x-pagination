@@ -33,16 +33,16 @@
           services: "create" | "delete" | "read" | "update";
         };
         eventsCausingActions: {
-          "addCurrentToPrevious": "" | "RINIT" | "xstate.stop";
+          "addCurrentToPrevious": "done.invoke.readMore";
 "addQueryToCache": "done.invoke.read" | "done.invoke.readMore";
 "escalateError": "";
 "getCachedIds": "";
 "incrementAttempts": "error.platform.create" | "error.platform.delete" | "error.platform.readMore" | "error.platform.update";
-"removeLastQuery": "RINIT" | "done.invoke.readMore" | "error.platform.readMore" | "xstate.stop";
+"removeLastQuery": "done.invoke.readMore";
 "resetAttempts": "";
 "resetCache": "RINIT" | "done.invoke.create" | "done.invoke.delete" | "done.invoke.update" | "error.platform.create" | "error.platform.delete" | "error.platform.update" | "xstate.stop";
 "setConfig": "SET_CONFIG";
-"setCurrentQueryToPrevious": "RINIT" | "done.invoke.readMore" | "error.platform.readMore" | "xstate.stop";
+"setCurrentQueryToPrevious": "done.invoke.readMore";
 "setItems": "done.invoke.read" | "done.invoke.readMore";
 "setQuery": "READ" | "READ_MORE";
         };
@@ -53,6 +53,7 @@
         eventsCausingGuards: {
           "cacheIsNotEmpty": "READ_MORE";
 "itemsAreCached": "";
+"moreIsCached": "";
 "queryIsCached": "";
 "triesNotReached": "";
         };

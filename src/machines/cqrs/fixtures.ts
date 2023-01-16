@@ -64,8 +64,8 @@ export const mockServiceRead = (database: Item[]) => {
 };
 
 export const mockServiceCreate = (database: Item[]) => {
-  return async (_: any, event: ExtractEventCqrs<'CREATE'>) => {
-    const item = { ...event.data, id: database.length + 1 + '' };
+  return async (_: any, { data }: ExtractEventCqrs<'CREATE'>) => {
+    const item = { ...data, id: database.length + 1 + '' };
     database.push(item);
     return item.id;
   };

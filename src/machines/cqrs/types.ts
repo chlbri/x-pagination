@@ -14,16 +14,18 @@ export type Context = {
     attempts?: number;
     throttle?: number;
     refetch?: number;
+    limit?: number;
   };
   caches?: Cache[];
   currentQuery?: Query;
   cachedIds?: string[];
+  errors?: string[];
 };
 
 export type CqrsEvents =
   | {
       type: 'READ';
-      data: Pick<Query, 'query' | 'limit'>;
+      data: Pick<Query, 'query'>;
     }
   | {
       type: 'READ_MORE';

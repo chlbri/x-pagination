@@ -168,11 +168,10 @@ export const CqrsMachine = createMachine(
             initial: 'check',
             states: {
               check: {
-                exit: 'addCurrentToPrevious',
                 always: [
                   {
                     target: 'items',
-                    cond: 'queryIsCached',
+                    cond: 'moreIsCached',
                     actions: 'getCachedIds',
                   },
                   {
@@ -216,14 +215,19 @@ export const CqrsMachine = createMachine(
         },
       },
       readMore: {
-        exit: ['setCurrentQueryToPrevious', 'removeLastQuery'],
         invoke: {
           src: 'read',
           id: 'readMore',
           onDone: [
             {
               target: 'busy',
-              actions: ['setItems', 'addQueryToCache'],
+              actions: [
+                'setItems',
+                'addQueryToCache',
+                'addCurrentToPrevious',
+                'setCurrentQueryToPrevious',
+                'removeLastQuery',
+              ],
             },
           ],
           onError: [
@@ -265,6 +269,8 @@ export const CqrsMachine = createMachine(
         return ids.every(id => items?.some(({ item }) => item.id === id));
       },
 
+      moreIsCached: () => true,
+
       cacheIsNotEmpty: context => {
         const caches = context.caches;
         return !!caches && caches.length > 0;
@@ -290,6 +296,7 @@ export const CqrsMachine = createMachine(
         const len = context.items?.length || 0;
         const rawItems = event.data.items;
         // TODO: fsf it
+        // TODO: Push items, not set all
         context.items = event.data.items.map((item, index) => ({
           __position__: index,
           item,
@@ -310,7 +317,7 @@ export const CqrsMachine = createMachine(
         const caches = context.caches!;
         const lastIndex = caches.length - 1;
         const lastIds = caches[lastIndex].ids;
-        const beforeLastIds = caches[lastIndex - 1].ids;
+        const beforeLastIds = caches[lastIndex - 1]?.ids;
         const set = new Set([...lastIds, ...beforeLastIds]);
         context.caches![lastIndex - 1].ids = Array.from(set);
       }),
@@ -335,7 +342,8 @@ export const CqrsMachine = createMachine(
         );
       }),
 
-      escalateError: escalate('ERROR'),
+      // TODO: change to escalateErrors
+      escalateError: escalate(({ errors }) => errors),
 
       addQueryToCache: assign(context => {
         context.caches = _addQueryToCache({ ...context });

@@ -10,7 +10,6 @@ export type ItemWithPosition = {
 export type Query = {
   query: Partial<Item>;
   offset?: number;
-  limit?: number;
 };
 
 export type NExclude<T> = Exclude<T, undefined>;
