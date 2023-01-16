@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-non-null-assertion */
 import { createLogic, interpret } from '@bemedev/fsf';
 import { Cache, Context } from '~cqrs/types';
 
@@ -55,9 +56,8 @@ const logic = createLogic(
         context.caches = caches;
       },
       push: (context, { currentQuery, items }) => {
-        context.caches?.push({
+        context.caches!.push({
           key: JSON.stringify(currentQuery),
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           ids: items!.map(item => item.item.id),
         });
       },

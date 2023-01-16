@@ -3,6 +3,7 @@
 
 import { assign } from '@xstate/immer';
 import { createMachine } from 'xstate';
+import { escalate } from 'xstate/lib/actions';
 import { assignObject } from '~pagination/helpers';
 import {
   DEFAULT_THROTLLE_TIME,
@@ -59,9 +60,6 @@ export const CqrsMachine = createMachine(
           CREATE: {
             target: 'create',
           },
-          REMOVE: {
-            target: 'remove',
-          },
           READ_MORE: {
             target: '#cqrs.cache.more',
             cond: 'cacheIsNotEmpty',
@@ -100,11 +98,6 @@ export const CqrsMachine = createMachine(
               actions: ['setItems', 'addQueryToCache'],
             },
           ],
-          onError: [
-            {
-              target: 'error',
-            },
-          ],
         },
       },
       update: {
@@ -141,23 +134,6 @@ export const CqrsMachine = createMachine(
           ],
         },
       },
-      remove: {
-        exit: 'resetCache',
-        invoke: {
-          src: 'remove',
-          id: 'remove',
-          onDone: [
-            {
-              target: 'read',
-            },
-          ],
-          onError: [
-            {
-              target: 'error',
-            },
-          ],
-        },
-      },
       cache: {
         states: {
           query: {
@@ -180,7 +156,6 @@ export const CqrsMachine = createMachine(
                   {
                     target: '#cqrs.idle',
                     cond: 'itemsAreCached',
-                    actions: 'setCurrentItems',
                   },
                   {
                     target: '#cqrs.read',
@@ -210,7 +185,6 @@ export const CqrsMachine = createMachine(
                   {
                     target: '#cqrs.idle',
                     cond: 'itemsAreCached',
-                    actions: 'setCurrentItems',
                   },
                   {
                     target: '#cqrs.readMore',
@@ -222,14 +196,14 @@ export const CqrsMachine = createMachine(
         },
       },
       error: {
-        entry: 'escalateError',
+        entry: 'incrementAttempts',
         always: [
           {
             target: 'busy',
             cond: 'triesNotReached',
           },
           {
-            actions: 'resetAttempts',
+            actions: ['resetAttempts', 'escalateError'],
           },
         ],
       },
@@ -242,7 +216,7 @@ export const CqrsMachine = createMachine(
         },
       },
       readMore: {
-        exit: ['setCurrentQueryToPrevious', 'removeLastQuery      '],
+        exit: ['setCurrentQueryToPrevious', 'removeLastQuery'],
         invoke: {
           src: 'read',
           id: 'readMore',
@@ -258,6 +232,11 @@ export const CqrsMachine = createMachine(
             },
           ],
         },
+      },
+    },
+    on: {
+      RINIT: {
+        target: '.config',
       },
     },
   },
@@ -339,6 +318,24 @@ export const CqrsMachine = createMachine(
       resetCache: assign(context => {
         context.caches = undefined;
       }),
+
+      removeLastQuery: assign(({ caches }) => {
+        caches?.pop();
+      }),
+
+      incrementAttempts: assign(context => {
+        const attempts = (context.config?.attempts || 0) + 1;
+        context.config = assignObject({ ...context.config }, { attempts });
+      }),
+
+      resetAttempts: assign(context => {
+        context.config = assignObject(
+          { ...context.config },
+          { attempts: undefined },
+        );
+      }),
+
+      escalateError: escalate('ERROR'),
 
       addQueryToCache: assign(context => {
         context.caches = _addQueryToCache({ ...context });

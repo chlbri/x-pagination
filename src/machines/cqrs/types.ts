@@ -1,4 +1,5 @@
-import { NPick, WithoutId } from 'src/types';
+import { NPick, Query, WithoutId } from 'src/types';
+import { ExtractEvent } from 'xstate';
 import { Item, ItemWithPosition } from '~pagination/types';
 
 export type Cache = {
@@ -19,12 +20,10 @@ export type Context = {
   cachedIds?: string[];
 };
 
-export type Query = { query: Partial<Item>; offset?: number };
-
 export type CqrsEvents =
   | {
       type: 'READ';
-      data: Pick<Query, 'query'>;
+      data: Pick<Query, 'query' | 'limit'>;
     }
   | {
       type: 'READ_MORE';
@@ -46,11 +45,7 @@ export type CqrsEvents =
       data: Item['id'];
     }
   | {
-      type: 'REMOVE';
-      data: Item['id'];
-    }
-  | {
-      type: 'REFETCH';
+      type: 'REFETCH' | 'RINIT';
     };
 
 export type Events =
@@ -60,6 +55,15 @@ export type Events =
       data: NPick<Context['config'], 'tries'>;
     };
 
+export type ExtractEventCqrs<T extends Events['type']> = ExtractEvent<
+  Events,
+  T
+>;
+
+export type Mutation = {
+  data: Item['id'];
+};
+
 export type Services = {
   read: {
     data: {
@@ -67,4 +71,7 @@ export type Services = {
       offset?: number;
     };
   };
+  create: Mutation;
+  update: Mutation;
+  delete: Mutation;
 };
